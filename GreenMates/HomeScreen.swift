@@ -9,11 +9,12 @@ struct HomeScreen: View {
     @State private var recolectas: [Recolectas] = []
     @State private var isLoading = true
     @State private var errorMessage: String? = nil
+    @State private var searchText: String = ""
 
     var body: some View {
         NavigationStack {
             VStack {
-                SearchBar()
+                SearchBar(searchText: $searchText)
 
                 if isLoading {
                     ProgressView("Loading...")
@@ -23,7 +24,7 @@ struct HomeScreen: View {
                 } else {
                     MapViewWithMarkers(talleres: talleres, recolectas: recolectas)
                         .frame(height: 250)
-                    CollectionList()
+                    CollectionList(searchText: searchText)
                 }
             }
             .padding()
@@ -71,12 +72,11 @@ struct HomeScreen: View {
     }
 }
 
-
-
 struct SearchBar: View {
+    @Binding var searchText: String
+
     var body: some View {
-        TextField("Encuentra retos cerca de ti", text: .constant(""))
-            .disabled(true)
+        TextField("Encuentra retos cerca de ti", text: $searchText)
             .textFieldStyle(RoundedBorderTextFieldStyle())
             .padding()
     }
@@ -87,7 +87,7 @@ struct MapViewWithMarkers: View {
     let recolectas: [Recolectas]
 
     @State private var region = MKCoordinateRegion(
-        center: CLLocationCoordinate2D(latitude: 19.4326, longitude: -99.1332),
+        center: CLLocationCoordinate2D(latitude: 19.0413, longitude: -98.2062),
         span: MKCoordinateSpan(latitudeDelta: 0.1, longitudeDelta: 0.1)
     )
 

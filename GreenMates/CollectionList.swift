@@ -4,8 +4,10 @@ import SwiftUI
 
 struct CollectionList: View {
     @State private var items: [CollectionItemModel] = []
+    @State private var filteredItems: [CollectionItemModel] = []
     @State private var isLoading = true
     @State private var expandedItemID: UUID?
+    let searchText: String
 
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
@@ -17,20 +19,38 @@ struct CollectionList: View {
                 ProgressView()
                     .frame(maxWidth: .infinity, alignment: .center)
             } else {
-                ForEach(items) { item in
-                    CollectionItemView(
-                        item: item,
-                        isExpanded: expandedItemID == item.id,
-                        onTap: {
-                            expandedItemID = expandedItemID == item.id ? nil : item.id
+                ScrollView {
+                    VStack(spacing: 16) {
+                        ForEach(filteredItems) { item in
+                            CollectionItemView(
+                                item: item,
+                                isExpanded: expandedItemID == item.id,
+                                onTap: {
+                                    expandedItemID = expandedItemID == item.id ? nil : item.id
+                                }
+                            )
                         }
-                    )
+                    }
                 }
             }
         }
         .padding()
         .onAppear {
             fetchData()
+        }
+        .onChange(of: searchText) { _ in
+            filterItems()
+        }
+    }
+
+    private func filterItems() {
+        if searchText.isEmpty {
+            filteredItems = items
+        } else {
+            filteredItems = items.filter { item in
+                item.title.lowercased().contains(searchText.lowercased()) ||
+                item.address.lowercased().contains(searchText.lowercased())
+            }
         }
     }
 
@@ -66,10 +86,12 @@ struct CollectionList: View {
         dispatchGroup.notify(queue: .main) {
             self.items = fetchedTalleres.map { CollectionItemModel(from: $0) } +
                          fetchedRecolectas.map { CollectionItemModel(from: $0) }
+            self.filteredItems = self.items // Initialize filteredItems with all items
             self.isLoading = false
         }
     }
 }
+
 
 struct CollectionItemView: View {
     var item: CollectionItemModel
@@ -77,7 +99,7 @@ struct CollectionItemView: View {
     var onTap: () -> Void
 
     var body: some View {
-        VStack(alignment: .leading) {
+        VStack(alignment: .leading, spacing: 0) { // Remove default spacing between main and expanded parts
             HStack {
                 VStack(alignment: .leading) {
                     Text(item.title)
@@ -99,16 +121,20 @@ struct CollectionItemView: View {
                     Text("\(item.percentage)%")
                         .bold()
                 }
+                .frame(width: 50, height: 50)
             }
             .padding()
-            .background(RoundedRectangle(cornerRadius: 10).fill(Color(UIColor.systemGray6)))
+            .background(
+                RoundedRectangle(cornerRadius: 10)
+                    .fill(Color(UIColor.systemGray6))
+            )
             .onTapGesture {
                 onTap()
             }
 
             if isExpanded {
-                Divider().padding(.vertical, 4)
                 VStack(alignment: .leading, spacing: 8) {
+                    Divider().padding(.vertical, 4) // Optional: Divider to separate expanded section
                     if let pillar = item.pillar {
                         Text("Pillar: \(pillar)")
                             .font(.subheadline)
@@ -123,12 +149,21 @@ struct CollectionItemView: View {
                         .font(.subheadline)
                 }
                 .padding()
-                .background(RoundedRectangle(cornerRadius: 10).fill(Color(UIColor.systemGray5)))
+                .background(
+                    RoundedRectangle(cornerRadius: 10)
+                        .fill(Color(UIColor.systemGray6)) // Match background with main component
+                )
             }
         }
+        .clipShape(RoundedRectangle(cornerRadius: 10)) // Ensure rounded corners
         .animation(.easeInOut, value: isExpanded)
+        .background(
+            RoundedRectangle(cornerRadius: 10)
+                .fill(Color(UIColor.systemGray6))
+        )
     }
 }
+
 
 struct CollectionItemModel: Identifiable {
     let id = UUID()
