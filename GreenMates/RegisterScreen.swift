@@ -37,7 +37,6 @@ struct RegisterScreen: View {
                     errorMessage = "Passwords do not match."
                 } else {
                     errorMessage = ""
-                    // Call Firebase or backend API to register the user
                     print("Registering user with email: \(email)")
                 }
             }) {

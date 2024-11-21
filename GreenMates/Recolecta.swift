@@ -1,7 +1,7 @@
 import Foundation
 
-struct Recolecta: Codable, Identifiable {
-    let id = UUID() // Unique identifier for SwiftUI ForEach
+struct Recolectas: Codable, Identifiable {
+    let id = UUID() // For SwiftUI Identifiable conformance
     let RecollectID: String
     let CollaboratorFBID: String
     let Cardboard: Int
@@ -17,31 +17,39 @@ struct Recolecta: Codable, Identifiable {
     let Limit: Int
     let DonationArray: [Donation]
 
+    // Custom Decoding
     enum CodingKeys: String, CodingKey {
-        case RecollectID
-        case CollaboratorFBID
-        case Cardboard
-        case Glass
-        case Tetrapack
-        case Plastic
-        case Paper
-        case Metal
-        case StartTime
-        case EndTime
-        case Longitude
-        case Latitude
-        case Limit
-        case DonationArray
+        case RecollectID, CollaboratorFBID, Cardboard, Glass, Tetrapack, Plastic, Paper, Metal
+        case StartTime, EndTime, Longitude, Latitude, Limit, DonationArray
     }
-}
 
-struct Donation: Codable {
-    let UserFBID: String
-    let Username: String
-    let Cardboard: Double
-    let Glass: Double
-    let Metal: Double
-    let Paper: Double
-    let Plastic: Double
-    let Tetrapack: Double
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+
+        RecollectID = try container.decode(String.self, forKey: .RecollectID)
+        CollaboratorFBID = try container.decode(String.self, forKey: .CollaboratorFBID)
+        Cardboard = try container.decode(Int.self, forKey: .Cardboard)
+        Glass = try container.decode(Int.self, forKey: .Glass)
+        Tetrapack = try container.decode(Int.self, forKey: .Tetrapack)
+        Plastic = try container.decode(Int.self, forKey: .Plastic)
+        Paper = try container.decode(Int.self, forKey: .Paper)
+        Metal = try container.decode(Int.self, forKey: .Metal)
+        Longitude = try container.decode(Double.self, forKey: .Longitude)
+        Latitude = try container.decode(Double.self, forKey: .Latitude)
+        Limit = try container.decode(Int.self, forKey: .Limit)
+        DonationArray = try container.decode([Donation].self, forKey: .DonationArray)
+
+        // Decode StartTime and EndTime as String and convert to Date
+        let startTimeString = try container.decode(String.self, forKey: .StartTime)
+        let endTimeString = try container.decode(String.self, forKey: .EndTime)
+        let dateFormatter = ISO8601DateFormatter()
+
+        if let startTime = dateFormatter.date(from: startTimeString),
+           let endTime = dateFormatter.date(from: endTimeString) {
+            StartTime = startTime
+            EndTime = endTime
+        } else {
+            throw DecodingError.dataCorruptedError(forKey: .StartTime, in: container, debugDescription: "Invalid date format")
+        }
+    }
 }

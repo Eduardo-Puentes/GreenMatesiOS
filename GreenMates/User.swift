@@ -1,3 +1,9 @@
+import Foundation
+
+struct UserResponse: Codable {
+    let user: User
+}
+
 struct User: Codable {
     let userID: String
     let fbid: String
@@ -14,7 +20,7 @@ struct User: Codable {
     let medalConsume: Int
     let medalDesecho: Int
     let notificationArray: [Notification]?
-    
+
     enum CodingKeys: String, CodingKey {
         case userID = "UserID"
         case fbid = "FBID"
@@ -31,5 +37,15 @@ struct User: Codable {
         case medalConsume = "MedalConsume"
         case medalDesecho = "MedalDesecho"
         case notificationArray = "NotificationArray"
+    }
+}
+
+struct Notification: Codable {
+    let notificationType: String
+    let message: String
+
+    enum CodingKeys: String, CodingKey {
+        case notificationType = "NotificationType"
+        case message = "Message"
     }
 }

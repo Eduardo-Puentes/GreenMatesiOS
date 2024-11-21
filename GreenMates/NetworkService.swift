@@ -9,16 +9,15 @@ class NetworkService {
         self.session = URLSession.shared
     }
 
-    // Perform GET requests
     func get<T: Decodable>(_ endpoint: String, completion: @escaping (Result<T, Error>) -> Void) {
-        guard let url = URL(string: Constants.baseURL + endpoint) else {
+        guard let url = URL(string: "http://10.50.90.159:3000" + endpoint) else {
             completion(.failure(NetworkError.invalidURL))
             return
         }
 
         let request = URLRequest(url: url)
 
-        session.dataTask(with: request) { data, response, error in
+        session.dataTask(with: request) { data, _, error in
             if let error = error {
                 completion(.failure(error))
                 return
@@ -30,15 +29,14 @@ class NetworkService {
             }
 
             do {
-                let decoded = try JSONDecoder().decode(T.self, from: data)
-                completion(.success(decoded))
+                let decodedData = try JSONDecoder().decode(T.self, from: data)
+                completion(.success(decodedData))
             } catch {
                 completion(.failure(error))
             }
         }.resume()
     }
 
-    // Perform POST requests
     func post<T: Encodable, U: Decodable>(_ endpoint: String, body: T, completion: @escaping (Result<U, Error>) -> Void) {
         guard let url = URL(string: Constants.baseURL + endpoint) else {
             completion(.failure(NetworkError.invalidURL))

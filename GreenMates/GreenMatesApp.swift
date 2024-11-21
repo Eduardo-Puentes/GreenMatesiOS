@@ -1,14 +1,12 @@
-//
-//  GreenMatesApp.swift
-//  GreenMates
-//
-//  Created by base on 15/11/24.
-//
-
 import SwiftUI
+import Firebase
 
 @main
 struct GreenMatesApp: App {
+    init() {
+        FirebaseApp.configure()
+    }
+
     var body: some Scene {
         WindowGroup {
             ContentView()
