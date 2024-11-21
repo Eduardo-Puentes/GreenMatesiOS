@@ -172,7 +172,6 @@ struct CollectionItem: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
-            // Main row
             HStack {
                 VStack(alignment: .leading) {
                     Text(taller.Title)

@@ -1,7 +1,7 @@
 import Foundation
 
 struct Recolectas: Codable, Identifiable {
-    let id = UUID() // For SwiftUI Identifiable conformance
+    let id = UUID()
     let RecollectID: String
     let CollaboratorFBID: String
     let Cardboard: Int
@@ -17,7 +17,6 @@ struct Recolectas: Codable, Identifiable {
     let Limit: Int
     let DonationArray: [Donation]
 
-    // Custom Decoding
     enum CodingKeys: String, CodingKey {
         case RecollectID, CollaboratorFBID, Cardboard, Glass, Tetrapack, Plastic, Paper, Metal
         case StartTime, EndTime, Longitude, Latitude, Limit, DonationArray
@@ -39,7 +38,6 @@ struct Recolectas: Codable, Identifiable {
         Limit = try container.decode(Int.self, forKey: .Limit)
         DonationArray = try container.decode([Donation].self, forKey: .DonationArray)
 
-        // Decode StartTime and EndTime as String and convert to Date
         let startTimeString = try container.decode(String.self, forKey: .StartTime)
         let endTimeString = try container.decode(String.self, forKey: .EndTime)
         let dateFormatter = ISO8601DateFormatter()
