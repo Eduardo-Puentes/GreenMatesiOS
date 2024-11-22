@@ -6,51 +6,58 @@ struct LoginScreen: View {
 
     @State private var email = ""
     @State private var password = ""
-    @State private var errorMessage = ""
+    @State private var errorMessage: String? = nil
 
     var body: some View {
-        VStack(spacing: 20) {
-            Text("Login")
-                .font(.largeTitle)
-                .fontWeight(.bold)
+        VStack {
+            Text("Inicia Sesión")
+                .font(.title)
+                .padding(.bottom, 20)
 
-            TextField("Email", text: $email)
-                .textFieldStyle(RoundedBorderTextFieldStyle())
-                .keyboardType(.emailAddress)
+            TextField("Usuario", text: $email)
+                .padding()
+                .background(Color(.systemGray6))
+                .cornerRadius(8)
+                .padding(.horizontal)
 
-            SecureField("Password", text: $password)
-                .textFieldStyle(RoundedBorderTextFieldStyle())
+            SecureField("Contraseña", text: $password)
+                .padding()
+                .background(Color(.systemGray6))
+                .cornerRadius(8)
+                .padding(.horizontal)
 
-            if !errorMessage.isEmpty {
+            if let errorMessage = errorMessage {
                 Text(errorMessage)
                     .foregroundColor(.red)
                     .font(.caption)
+                    .padding(.top, 10)
             }
 
             Button(action: {
                 if email.isEmpty || password.isEmpty {
                     errorMessage = "Please fill in all fields."
                 } else {
-                    errorMessage = ""
+                    errorMessage = nil
                     onLoginSuccess(email, password)
                 }
             }) {
-                Text("Login")
-                    .padding()
-                    .frame(maxWidth: .infinity)
-                    .background(Color.green)
-                    .foregroundColor(.white)
-                    .cornerRadius(10)
+                GradientButton(text: "Iniciar Sesión", colors: [Color.yellow, Color.green])
             }
+            .padding(.top, 20)
+
+            Text("o")
+                .padding(.top, 20)
 
             Button(action: {
                 onNavigateToRegister()
             }) {
-                Text("Don't have an account? Register")
-                    .font(.footnote)
-                    .foregroundColor(.blue)
+                GradientButton(text: "Crear Cuenta", colors: [Color.green, Color.green])
             }
+            .padding(.top, 20)
+
+            Spacer()
         }
         .padding()
     }
 }
+

@@ -1,61 +1,126 @@
 import SwiftUI
+import FirebaseAuth
 
 struct RegisterScreen: View {
     var onNavigateToLogin: () -> Void
 
-    @State private var email = ""
-    @State private var password = ""
-    @State private var confirmPassword = ""
-    @State private var errorMessage = ""
+    @State private var username: String = ""
+    @State private var email: String = ""
+    @State private var password: String = ""
+    @State private var errorMessage: String? = nil
 
     var body: some View {
-        VStack(spacing: 20) {
-            Text("Register")
-                .font(.largeTitle)
-                .fontWeight(.bold)
+        VStack {
+            Text("Crear Cuenta")
+                .font(.title)
+                .padding(.bottom, 20)
 
-            TextField("Email", text: $email)
-                .textFieldStyle(RoundedBorderTextFieldStyle())
-                .keyboardType(.emailAddress)
+            TextField("Usuario", text: $username)
+                .padding()
+                .background(Color(.systemGray6))
+                .cornerRadius(8)
+                .padding(.horizontal)
 
-            SecureField("Password", text: $password)
-                .textFieldStyle(RoundedBorderTextFieldStyle())
+            TextField("Correo Electrónico", text: $email)
+                .padding()
+                .background(Color(.systemGray6))
+                .cornerRadius(8)
+                .padding(.horizontal)
 
-            SecureField("Confirm Password", text: $confirmPassword)
-                .textFieldStyle(RoundedBorderTextFieldStyle())
+            SecureField("Contraseña", text: $password)
+                .padding()
+                .background(Color(.systemGray6))
+                .cornerRadius(8)
+                .padding(.horizontal)
 
-            if !errorMessage.isEmpty {
+            if let errorMessage = errorMessage {
                 Text(errorMessage)
                     .foregroundColor(.red)
                     .font(.caption)
+                    .padding(.top, 10)
             }
 
             Button(action: {
-                if email.isEmpty || password.isEmpty || confirmPassword.isEmpty {
-                    errorMessage = "Please fill in all fields."
-                } else if password != confirmPassword {
-                    errorMessage = "Passwords do not match."
+                if username.isEmpty || email.isEmpty || password.isEmpty {
+                    errorMessage = "Todos los campos son obligatorios."
                 } else {
-                    errorMessage = ""
-                    print("Registering user with email: \(email)")
+                    errorMessage = nil
+                    registerUser(username: username, email: email, password: password)
                 }
             }) {
-                Text("Register")
-                    .padding()
-                    .frame(maxWidth: .infinity)
-                    .background(Color.green)
-                    .foregroundColor(.white)
-                    .cornerRadius(10)
+                GradientButton(text: "Crear Cuenta", colors: [Color.yellow, Color.green])
             }
+            .padding(.top, 20)
 
-            Button(action: {
-                onNavigateToLogin()
-            }) {
-                Text("Already have an account? Login")
-                    .font(.footnote)
-                    .foregroundColor(.blue)
+            Text("o")
+                .padding(.top, 20)
+
+            Button(action: onNavigateToLogin) {
+                GradientButton(text: "Iniciar Sesión", colors: [Color.green, Color.green])
             }
+            .padding(.top, 20)
+
+            Spacer()
         }
         .padding()
     }
+}
+
+func registerUser(username: String, email: String, password: String) {
+    Auth.auth().createUser(withEmail: email, password: password) { result, error in
+        if let error = error {
+            print("Firebase registration failed: \(error.localizedDescription)")
+            return
+        }
+
+        guard let user = result?.user else { return }
+        let newUser = User(
+                    userID: "",
+                    fbid: user.uid,
+                    username: username,
+                    email: email,
+                    cardboard: 0,
+                    glass: 0,
+                    tetrapack: 0,
+                    plastic: 0,
+                    paper: 0,
+                    metal: 0,
+                    medalTrans: 0,
+                    medalEnergy: 0,
+                    medalConsume: 0,
+                    medalDesecho: 0,
+                    notificationArray: nil
+                )
+
+        // Register user in the database (replace with actual API call)
+        registerUserInDatabase(user: newUser)
+    }
+}
+
+func registerUserInDatabase(user: User) {
+    guard let url = URL(string: "http://10.50.90.159:3000/register") else { return }
+    var request = URLRequest(url: url)
+    request.httpMethod = "POST"
+    request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+
+    do {
+        let jsonData = try JSONEncoder().encode(user)
+        request.httpBody = jsonData
+    } catch {
+        print("Failed to encode user data: \(error.localizedDescription)")
+        return
+    }
+
+    URLSession.shared.dataTask(with: request) { data, response, error in
+        if let error = error {
+            print("Network error: \(error.localizedDescription)")
+            return
+        }
+
+        if let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 {
+            print("User successfully registered")
+        } else {
+            print("Failed to register user in database")
+        }
+    }.resume()
 }

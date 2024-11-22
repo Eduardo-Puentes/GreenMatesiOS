@@ -1,18 +1,17 @@
 import SwiftUI
 
 struct GradientButton: View {
-    var text: String
-    var onClick: () -> Void
-    var gradient: LinearGradient
-
+    let text: String
+    let colors: [Color]
+    
     var body: some View {
-        Button(action: onClick) {
-            Text(text)
-                .padding()
-                .frame(maxWidth: .infinity)
-                .background(gradient)
-                .foregroundColor(.white)
-                .cornerRadius(8)
-        }
+        LinearGradient(gradient: Gradient(colors: colors), startPoint: .leading, endPoint: .trailing)
+            .frame(height: 50)
+            .cornerRadius(8)
+            .overlay(
+                Text(text)
+                    .foregroundColor(.white)
+                    .font(.headline)
+            )
     }
 }
