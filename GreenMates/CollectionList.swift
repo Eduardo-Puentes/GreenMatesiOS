@@ -86,7 +86,7 @@ struct CollectionList: View {
         dispatchGroup.notify(queue: .main) {
             self.items = fetchedTalleres.map { CollectionItemModel(from: $0) } +
                          fetchedRecolectas.map { CollectionItemModel(from: $0) }
-            self.filteredItems = self.items // Initialize filteredItems with all items
+            self.filteredItems = self.items
             self.isLoading = false
         }
     }
@@ -99,7 +99,7 @@ struct CollectionItemView: View {
     var onTap: () -> Void
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 0) { // Remove default spacing between main and expanded parts
+        VStack(alignment: .leading, spacing: 0) {
             HStack {
                 VStack(alignment: .leading) {
                     Text(item.title)
@@ -134,7 +134,7 @@ struct CollectionItemView: View {
 
             if isExpanded {
                 VStack(alignment: .leading, spacing: 8) {
-                    Divider().padding(.vertical, 4) // Optional: Divider to separate expanded section
+                    Divider().padding(.vertical, 4)
                     if let pillar = item.pillar {
                         Text("Pillar: \(pillar)")
                             .font(.subheadline)
@@ -151,11 +151,11 @@ struct CollectionItemView: View {
                 .padding()
                 .background(
                     RoundedRectangle(cornerRadius: 10)
-                        .fill(Color(UIColor.systemGray6)) // Match background with main component
+                        .fill(Color(UIColor.systemGray6))
                 )
             }
         }
-        .clipShape(RoundedRectangle(cornerRadius: 10)) // Ensure rounded corners
+        .clipShape(RoundedRectangle(cornerRadius: 10))
         .animation(.easeInOut, value: isExpanded)
         .background(
             RoundedRectangle(cornerRadius: 10)
@@ -179,7 +179,12 @@ struct CollectionItemModel: Identifiable {
     init(from taller: Tallers) {
         self.title = taller.Title
         self.address = "\(taller.Longitude), \(taller.Latitude)"
-        self.percentage = taller.AssistantArray.count * 100 / (taller.Limit > 0 ? taller.Limit : 1)
+        if (taller.Limit > 0) {
+            self.percentage = taller.AssistantArray.count * 100 / taller.Limit
+        }
+        else {
+            self.percentage = 100
+        }
         self.startTime = taller.StartTime
         self.endTime = taller.EndTime
         self.collaboratorFBID = taller.CollaboratorFBID
@@ -190,7 +195,12 @@ struct CollectionItemModel: Identifiable {
     init(from recolecta: Recolectas) {
         self.title = "Recolecta"
         self.address = "\(recolecta.Longitude), \(recolecta.Latitude)"
-        self.percentage = recolecta.DonationArray.count * 100 / (recolecta.Limit > 0 ? recolecta.Limit : 1)
+        if (recolecta.Limit > 0) {
+            self.percentage = recolecta.DonationArray.count * 100 / recolecta.Limit
+        }
+        else {
+            self.percentage = 100
+        }
         self.startTime = recolecta.StartTime
         self.endTime = recolecta.EndTime
         self.collaboratorFBID = recolecta.CollaboratorFBID

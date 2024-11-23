@@ -92,13 +92,12 @@ func registerUser(username: String, email: String, password: String) {
                     notificationArray: nil
                 )
 
-        // Register user in the database (replace with actual API call)
         registerUserInDatabase(user: newUser)
     }
 }
 
 func registerUserInDatabase(user: User) {
-    guard let url = URL(string: "http://10.50.90.159:3000/register") else { return }
+    guard let url = URL(string: "https://7cae-189-156-240-57.ngrok-free.app/register") else { return }
     var request = URLRequest(url: url)
     request.httpMethod = "POST"
     request.setValue("application/json", forHTTPHeaderField: "Content-Type")

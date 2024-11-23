@@ -1,5 +1,5 @@
 import Foundation
 
 struct Constants {
-    static let baseURL = "http://10.50.90.159:3000"
+    static let baseURL = "https://7cae-189-156-240-57.ngrok-free.app"
 }

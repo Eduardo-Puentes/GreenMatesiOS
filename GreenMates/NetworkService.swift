@@ -10,7 +10,7 @@ class NetworkService {
     }
 
     func get<T: Decodable>(_ endpoint: String, completion: @escaping (Result<T, Error>) -> Void) {
-        guard let url = URL(string: "http://10.50.90.159:3000" + endpoint) else {
+        guard let url = URL(string: "https://7cae-189-156-240-57.ngrok-free.app" + endpoint) else {
             completion(.failure(NetworkError.invalidURL))
             return
         }
